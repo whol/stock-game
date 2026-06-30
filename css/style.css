@@ -905,6 +905,9 @@ body.crash::after {
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-mute); }
 
+/* 移动端底部导航 */
+.mobile-nav { display: none; }
+
 /* ===== 响应式 ===== */
 /* 窄屏：收紧侧栏 */
 @media (max-width: 1200px) {
@@ -924,7 +927,6 @@ body.crash::after {
   .sidebar .search-input { padding: 3px 8px; font-size: 12px; }
   .sidebar .stock-list { flex: 1; overflow-y: auto; }
   .rightbar { max-height: 200px; display: flex; flex-direction: column; }
-  /* 股票卡片横向紧凑 */
   .stock-list:not(.compact) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -939,53 +941,167 @@ body.crash::after {
   .stock-price { font-size: 12px; }
   .stock-pct { font-size: 12px; }
   .stock-spark { height: 20px; margin-top: 3px; }
-  /* 资产栏紧凑 */
   .asset-stats { gap: 10px; flex-wrap: wrap; }
   .stat { min-width: 60px; }
   .stat-value { font-size: 14px; }
   .stat-label { font-size: 10px; }
   .date-text { font-size: 14px; }
-  /* 图表工具栏换行 */
   .chart-toolbar { gap: 10px; }
   .chart-header { flex-wrap: wrap; gap: 6px; }
   .chart-actions { flex-wrap: wrap; }
 }
 
-/* 手机 */
-@media (max-width: 600px) {
+/* 手机：底部Tab导航 */
+@media (max-width: 768px) {
+  html, body { overflow: hidden; height: 100%; height: 100dvh; }
+
+  /* 顶部栏：两行紧凑 */
   .asset-bar {
     flex-wrap: wrap;
     height: auto;
-    padding: 8px;
-    gap: 6px;
+    padding: 6px 8px;
+    gap: 4px;
   }
-  .asset-stats {
-    gap: 6px;
-    justify-content: flex-start;
-    font-size: 12px;
-  }
-  .stat { min-width: 50px; }
-  .stat-value { font-size: 13px; }
-  .stat-sub { font-size: 10px; }
+  .date-controls { min-width: auto; gap: 4px; order: 1; }
+  .play-controls { gap: 3px; order: 3; }
   .date-text { font-size: 13px; }
-  .date-controls { min-width: auto; gap: 4px; }
-  .play-controls { gap: 3px; }
-  .btn { padding: 4px 10px; font-size: 12px; }
+  .date-sub { font-size: 9px; }
+  .asset-stats {
+    order: 2;
+    width: 100%;
+    gap: 4px;
+    justify-content: space-around;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .stat { min-width: 0; flex: 1; }
+  .stat-label { font-size: 9px; }
+  .stat-value { font-size: 12px; }
+  .stat-sub { font-size: 9px; }
+  .title-stat { display: none; }
   .btn-icon { width: 28px; height: 28px; font-size: 12px; }
+  .speed-select { font-size: 11px; padding: 3px 4px; }
+  .btn { padding: 4px 10px; font-size: 12px; }
 
-  .layout { padding: 4px; gap: 4px; }
-  .sidebar, .rightbar { max-height: 180px; }
+  /* 布局：单列，只显示当前tab */
+  .layout {
+    padding: 2px;
+    gap: 2px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+  }
 
-  .stock-list { grid-template-columns: 1fr 1fr; }
-  .stock-card { padding: 6px 8px; }
+  /* 默认：显示行情(sidebar+chart)，隐藏rightbar */
+  .sidebar {
+    max-height: 100px;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar .sidebar-header { padding: 3px 6px; }
+  .sidebar .search-input { padding: 3px 6px; font-size: 11px; }
+  .sidebar .stock-list { flex: 1; overflow-y: auto; }
+  .stock-list:not(.compact) {
+    display: flex;
+    flex-direction: column;
+    padding: 2px;
+  }
+  .stock-card { padding: 4px 8px; margin-bottom: 2px; }
   .stock-name { font-size: 12px; }
-  .stock-price, .stock-pct { font-size: 11px; }
+  .stock-code { font-size: 10px; }
+  .stock-price { font-size: 11px; }
+  .stock-pct { font-size: 11px; }
+  .stock-spark { height: 4px; }
 
-  .chart-wrap { padding: 4px 6px; }
-  .chart-toolbar { gap: 6px; padding: 3px 8px; }
-  .tool-btn { padding: 2px 6px; font-size: 11px; }
+  /* 图表区 */
+  .chart-header { padding: 4px 8px; min-height: 36px; }
+  .chart-name { font-size: 13px; }
+  .chart-code { font-size: 10px; }
+  .chart-price { font-size: 12px; }
+  .chart-pct { font-size: 11px; padding: 1px 4px; }
+  .chart-actions { gap: 4px; }
+  .chart-actions .btn { padding: 3px 8px; font-size: 11px; }
 
-  .section-title { padding: 8px 10px; font-size: 12px; }
-  .position-card { padding: 6px 8px; font-size: 11px; }
-  .ach-item { padding: 5px 6px; font-size: 11px; }
+  /* 工具栏：横向滚动 */
+  .chart-toolbar {
+    gap: 8px;
+    padding: 2px 6px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    min-height: 32px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tool-label { font-size: 10px; }
+  .tool-btn { padding: 2px 6px; font-size: 11px; flex-shrink: 0; }
+
+  .chart-wrap { padding: 2px 4px; }
+  .volume-wrap { height: 40px; padding: 0 4px 1px; }
+  .indicator-wrap { height: 60px; padding: 0 4px 1px; }
+
+  /* 右栏：默认隐藏，切tab时全屏显示 */
+  .rightbar { max-height: none; }
+  .rightbar-section:first-child { max-height: none; }
+
+  /* 底部导航 */
+  .mobile-nav {
+    display: flex;
+    height: 48px;
+    background: var(--panel);
+    border-top: 1px solid var(--neon-cyan);
+    box-shadow: 0 -4px 12px rgba(0, 240, 255, 0.1);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .mobile-nav-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-mute);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.2s;
+    border-top: 2px solid transparent;
+  }
+  .mobile-nav-btn.active {
+    color: var(--neon-cyan);
+    border-top-color: var(--neon-cyan);
+    background: var(--neon-cyan-soft);
+  }
+
+  /* Tab 控制面板显隐 */
+  .layout.mobile-tab-market .sidebar { display: flex; }
+  .layout.mobile-tab-market .chart-section { display: flex; }
+  .layout.mobile-tab-market .rightbar { display: none; }
+
+  .layout.mobile-tab-positions .sidebar { display: none; }
+  .layout.mobile-tab-positions .chart-section { display: none; }
+  .layout.mobile-tab-positions .rightbar { display: flex; }
+  .layout.mobile-tab-positions .rightbar-section:last-child { display: none; }
+
+  .layout.mobile-tab-achievements .sidebar { display: none; }
+  .layout.mobile-tab-achievements .chart-section { display: none; }
+  .layout.mobile-tab-achievements .rightbar { display: flex; }
+  .layout.mobile-tab-achievements .rightbar-section:first-child { display: none; }
+
+  /* 弹窗：全宽 */
+  .modal-content { width: 94vw; border-radius: 8px; }
+  .modal-lg { width: 94vw; }
+  .modal-header { padding: 10px 14px; font-size: 14px; }
+  .modal-body { padding: 12px 14px; }
+  .trade-stock-info { padding: 8px 10px; margin-bottom: 10px; }
+  .trade-price { font-size: 15px; }
+  .trade-row { margin-bottom: 8px; font-size: 12px; }
+  .shares-input input { width: 80px; font-size: 13px; padding: 4px; }
+  .quick-shares button { padding: 2px 6px; font-size: 10px; }
+  .paste-textarea { height: 120px; font-size: 11px; }
+
+  /* Toast 位置 */
+  .toast-container { top: 70px; right: 8px; }
+  .toast { min-width: 160px; max-width: 280px; font-size: 12px; padding: 8px 10px; }
 }

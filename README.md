@@ -47,6 +47,8 @@
 
 🔗 [https://de1352c475a549ee9b1b78e6153b5229.app.codebuddy.work/](https://de1352c475a549ee9b1b78e6153b5229.app.codebuddy.work/)
 
+🔗 短链：[https://clck.ru/3UREPu](https://clck.ru/3UREPu)
+
 ## 本地运行
 
 游戏是纯前端，但用了 ES Module + fetch 加载 `data/stocks.json`，需要通过 HTTP 服务器打开（不能直接双击文件）：

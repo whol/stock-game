@@ -521,6 +521,21 @@ function bindEvents() {
       ui.renderStockList(currentCode);
     });
   }
+
+  // 移动端 Tab 切换
+  const layoutEl = document.querySelector('.layout');
+  document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.mtab;
+      document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.toggle('active', b === btn));
+      layoutEl.classList.remove('mobile-tab-market', 'mobile-tab-positions', 'mobile-tab-achievements');
+      layoutEl.classList.add('mobile-tab-' + tab);
+      // 切回行情时重绘图表
+      if (tab === 'market') {
+        setTimeout(() => chart.renderStock(currentCode), 50);
+      }
+    });
+  });
 }
 
 // 启动

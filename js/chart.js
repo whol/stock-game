@@ -52,6 +52,7 @@ export function initChart() {
   volCtx = volCanvas.getContext('2d');
   if (indCanvas) indCtx = indCanvas.getContext('2d');
 
+  // 鼠标事件
   canvas.addEventListener('mousemove', onMouseMove);
   canvas.addEventListener('mouseleave', onMouseLeave);
   canvas.addEventListener('click', onClick);
@@ -60,6 +61,11 @@ export function initChart() {
   canvas.addEventListener('mouseup', onDragEnd);
   canvas.addEventListener('mouseleave', () => { onDragEnd(); onMouseLeave(); });
   canvas.addEventListener('dblclick', () => { resetView(); });
+
+  // 触摸事件
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onTouchEnd, { passive: false });
 
   const ro = new ResizeObserver(() => scheduleDraw());
   ro.observe(canvas.parentElement);
@@ -816,7 +822,152 @@ function onClick(e) {
   }
 }
 
-function updateToolButtons() {
+// ===== 触摸交互 =====
+let touchState = null;  // { startX, startY, startViewStart, startViewCount, mode: 'pan'|'pinch', dist }
+let lastTapTime = 0;
+
+function getTouchPos(touch) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+}
+
+function getTouchDist(t1, t2) {
+  const dx = t1.clientX - t2.clientX;
+  const dy = t1.clientY - t2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function onTouchStart(e) {
+  if (!bars.length || !mainGeo.xOf) return;
+  e.preventDefault();
+
+  if (e.touches.length === 1) {
+    const pos = getTouchPos(e.touches[0]);
+    const { padL, plotW, n, priceOf, showBars } = mainGeo;
+    const cw = plotW / n;
+    const idx = Math.floor((pos.x - padL) / cw);
+    mousePos = { x: pos.x, y: pos.y, price: priceOf(pos.y) };
+
+    // 单指：拖动 or 点击
+    touchState = {
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      startViewStart: getViewRange().start,
+      mode: 'pan',
+      moved: false
+    };
+
+    // 十字光标
+    if (idx >= 0 && idx < n) {
+      mousePos.date = showBars[idx].date;
+      hoverIdx = idx;
+      scheduleDraw();
+    }
+
+    // 双击检测（双指单机）
+    const now = Date.now();
+    if (now - lastTapTime < 300) {
+      resetView();
+    }
+    lastTapTime = now;
+
+  } else if (e.touches.length === 2) {
+    // 双指缩放
+    touchState = {
+      mode: 'pinch',
+      startDist: getTouchDist(e.touches[0], e.touches[1]),
+      startViewCount: getViewRange().count,
+      startViewStart: getViewRange().start
+    };
+  }
+}
+
+function onTouchMove(e) {
+  if (!touchState || !bars.length) return;
+  e.preventDefault();
+
+  if (touchState.mode === 'pan' && e.touches.length === 1) {
+    const dx = e.touches[0].clientX - touchState.startX;
+    if (Math.abs(dx) > 5) {
+      touchState.moved = true;
+      const { plotW, n } = mainGeo;
+      const cw = plotW / n;
+      const moveBars = Math.round(dx / cw);
+      let newStart = touchState.startViewStart - moveBars;
+      newStart = Math.max(0, Math.min(newStart, bars.length - getViewRange().count));
+      if (newStart !== viewStart) {
+        viewStart = newStart;
+        scheduleDraw();
+      }
+    }
+
+    // 更新十字光标
+    const pos = getTouchPos(e.touches[0]);
+    const { padL, plotW, n, priceOf, showBars } = mainGeo;
+    const cw = plotW / n;
+    const idx = Math.floor((pos.x - padL) / cw);
+    mousePos = { x: pos.x, y: pos.y, price: priceOf(pos.y) };
+    if (idx >= 0 && idx < n) {
+      mousePos.date = showBars[idx].date;
+      hoverIdx = idx;
+    }
+    scheduleDraw();
+
+  } else if (touchState.mode === 'pinch' && e.touches.length === 2) {
+    const dist = getTouchDist(e.touches[0], e.touches[1]);
+    const factor = touchState.startDist / dist;
+    let newCount = Math.round(touchState.startViewCount * factor);
+    newCount = Math.max(20, Math.min(newCount, bars.length));
+    viewCount = newCount;
+    // 保持中心不变
+    const centerIdx = touchState.startViewStart + Math.floor(touchState.startViewCount / 2);
+    let newStart = centerIdx - Math.floor(newCount / 2);
+    newStart = Math.max(0, Math.min(newStart, bars.length - newCount));
+    viewStart = newStart;
+    scheduleDraw();
+  }
+}
+
+function onTouchEnd(e) {
+  if (!touchState) return;
+
+  if (touchState.mode === 'pan' && !touchState.moved) {
+    // 没有拖动 → 当作点击
+    if (mousePos && mainGeo.showBars && tool !== 'browse') {
+      const { showBars, n } = mainGeo;
+      const cw = mainGeo.plotW / n;
+      const idx = Math.floor((mousePos.x - mainGeo.padL) / cw);
+      if (idx >= 0 && idx < n) {
+        const date = showBars[idx].date;
+        const price = mousePos.price;
+        if (tool === 'trendline') {
+          if (!drawingDraft) {
+            drawingDraft = { type: 'line', date1: date, price1: price, date2: date, price2: price };
+          } else {
+            drawingDraft.date2 = date;
+            drawingDraft.price2 = price;
+            drawings.push({ ...drawingDraft });
+            drawingDraft = null;
+          }
+          scheduleDraw();
+        } else if (tool === 'hline') {
+          drawings.push({ type: 'hline', date1: date, price1: price, date2: date, price2: price });
+          scheduleDraw();
+        }
+      }
+    }
+  }
+
+  touchState = null;
+  // 触摸结束后保留十字光标 2 秒
+  setTimeout(() => {
+    if (!touchState) {
+      hoverIdx = -1;
+      mousePos = null;
+      scheduleDraw();
+    }
+  }, 2000);
+}
   document.querySelectorAll('[data-tool]').forEach(b => {
     b.classList.toggle('active', b.dataset.tool === tool);
   });
