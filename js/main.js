@@ -513,12 +513,15 @@ function bindEvents() {
   if (toggleBtn) {
     toggleBtn.addEventListener('click', () => {
       const list = document.getElementById('stockList');
+      const sidebar = document.querySelector('.sidebar');
       const isCompact = !list.classList.contains('compact');
       list.classList.toggle('compact', isCompact);
+      sidebar?.classList.toggle('compact-sidebar', isCompact);
       toggleBtn.textContent = isCompact ? '☰' : '≡';
       ui.renderStockList(currentCode);
     });
   }
+}
 
 // 启动
 init();

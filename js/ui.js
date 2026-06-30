@@ -135,9 +135,17 @@ export function renderStockList(currentCode) {
     card.className = 'stock-card' + (s.code === currentCode ? ' active' : '');
     card.dataset.code = s.code;
 
-    // 简易 sparkline（最近 20 日收盘价折线 SVG）
-    const sparkHtml = (() => {
-      if (isCompact) return '';
+    if (isCompact) {
+      // 紧凑模式：纯单行 — 名称 价格 涨跌%
+      card.innerHTML = `
+        <span class="sc-name ${cls}">${s.name}</span>
+        <span class="sc-right">
+          <span class="sc-price ${cls}">${lastBar.last.toFixed(2)}</span>
+          <span class="sc-pct ${cls}">${sign}${pct.toFixed(2)}%</span>
+        </span>
+      `;
+    } else {
+      // 正常模式：带 sparkline 的卡片
       const prices = recent.map(b => b.last);
       const minP = Math.min(...prices), maxP = Math.max(...prices);
       const range = maxP - minP || 1;
@@ -148,24 +156,22 @@ export function renderStockList(currentCode) {
         return `${x.toFixed(1)},${y.toFixed(1)}`;
       }).join(' ');
       const strokeColor = pct >= 0 ? '#ff4d4f' : '#26a69a';
-      return `<svg class="stock-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%">
-        <polyline points="${pts}" fill="none" stroke="${strokeColor}" stroke-width="1.2" />
-      </svg>`;
-    })();
-
-    card.innerHTML = `
-      <div class="stock-card-row">
-        <div>
-          <div class="stock-name">${s.name}</div>
-          <div class="stock-code">${s.code} · ${s.sector}</div>
+      card.innerHTML = `
+        <div class="stock-card-row">
+          <div>
+            <div class="stock-name">${s.name}</div>
+            <div class="stock-code">${s.code} · ${s.sector}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="stock-price ${cls}">${lastBar.last.toFixed(2)}</div>
+            <div class="stock-pct ${cls}">${sign}${pct.toFixed(2)}%</div>
+          </div>
         </div>
-        <div style="text-align:right">
-          <div class="stock-price ${cls}">${lastBar.last.toFixed(2)}</div>
-          <div class="stock-pct ${cls}">${sign}${pct.toFixed(2)}%</div>
-        </div>
-      </div>
-      ${sparkHtml}
-    `;
+        <svg class="stock-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%">
+          <polyline points="${pts}" fill="none" stroke="${strokeColor}" stroke-width="1.2" />
+        </svg>
+      `;
+    }
 
     card.addEventListener('click', () => onSelectStockCb && onSelectStockCb(s.code));
     list.appendChild(card);

@@ -207,9 +207,9 @@ body {
 .layout {
   flex: 1;
   display: grid;
-  grid-template-columns: 280px 1fr 320px;
-  gap: 8px;
-  padding: 8px;
+  grid-template-columns: 220px 1fr 300px;
+  gap: 4px;
+  padding: 4px;
   overflow: hidden;
   min-height: 0;
 }
@@ -226,13 +226,14 @@ body {
 /* ===== 左侧股票列表 ===== */
 .sidebar {
   min-height: 0;
+  /* 左侧列宽缩小到最小，给中间让空间 */
 }
 
 .sidebar-header {
-  padding: 10px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
 }
 .search-input { flex: 1; }
@@ -242,10 +243,11 @@ body {
   background: var(--bg);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 7px 10px;
-  border-radius: 5px;
-  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
   font-family: inherit;
+  line-height: 1.2;
 }
 .search-input:focus {
   outline: none;
@@ -253,60 +255,58 @@ body {
   box-shadow: 0 0 0 2px var(--neon-cyan-soft);
 }
 
+/* 默认也紧凑 */
 .stock-list {
   flex: 1;
   overflow-y: auto;
-  padding: 6px;
-}
-
-/* 紧凑列表模式 */
-.stock-list.compact {
-  padding: 0;
+  padding: 3px;
   display: flex;
   flex-direction: column;
 }
+
+/* 紧凑模式：纯单行 */
 .stock-list.compact .stock-card {
   padding: 4px 8px;
   margin-bottom: 0;
   border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-top: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
   background: none;
   display: flex;
   align-items: center;
-  gap: 8px;
   justify-content: space-between;
+  gap: 6px;
+  height: 30px;
+  line-height: 30px;
 }
 .stock-list.compact .stock-card:hover { transform: none; }
 .stock-list.compact .stock-card.active {
-  background: linear-gradient(90deg, rgba(0, 240, 255, 0.08), transparent);
+  background: rgba(0, 240, 255, 0.08);
+  border-left: 2px solid var(--neon-cyan);
   box-shadow: none;
 }
-.stock-list.compact .stock-card-row { flex: 1; }
-.stock-list.compact .stock-name { font-size: 12px; }
-.stock-list.compact .stock-code { font-size: 10px; }
-.stock-list.compact .stock-price { font-size: 12px; margin-top: 0; }
-.stock-list.compact .stock-pct { font-size: 11px; }
-.stock-list.compact .stock-spark { display: none; }
+.stock-list.compact .sc-name { font-size: 12px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stock-list.compact .sc-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.stock-list.compact .sc-price { font-size: 12px; font-variant-numeric: tabular-nums; }
+.stock-list.compact .sc-pct { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; }
 
 .stock-card {
   background: var(--panel-3);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 6px;
+  border-radius: 4px;
+  padding: 5px 8px;
+  margin-bottom: 3px;
   cursor: pointer;
   transition: all 0.15s;
   position: relative;
 }
 .stock-card:hover {
   border-color: var(--border-light);
-  transform: translateX(2px);
+  transform: translateX(1px);
 }
 .stock-card.active {
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 12px var(--neon-cyan-soft);
+  box-shadow: 0 0 8px var(--neon-cyan-soft);
   background: linear-gradient(135deg, var(--panel-3), rgba(0, 240, 255, 0.05));
 }
 
@@ -314,34 +314,72 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .stock-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stock-code {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-mute);
+  line-height: 1.2;
 }
 
 .stock-price {
-  font-size: 13px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
-  margin-top: 4px;
+  line-height: 1.3;
+  text-align: right;
 }
 
 .stock-pct {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  text-align: right;
+  line-height: 1.2;
 }
 
 .stock-spark {
-  margin-top: 3px;
-  height: 14px;
+  height: 6px;
+  width: 100%;
+  opacity: 0.7;
 }
+
+/* 更紧凑模式：纯文本列表，无卡片 */
+.stock-list.compact .stock-card {
+  padding: 2px 6px;
+  margin-bottom: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px solid var(--border);
+  background: none;
+}
+.stock-list.compact .stock-card:last-child { border-bottom: none; }
+.stock-list.compact .stock-card:hover { transform: none; }
+.stock-list.compact .stock-card.active {
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.08), transparent);
+  box-shadow: none;
+  border-color: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stock-list.compact .stock-spark { display: none; }
+
+/* 更紧凑模式：字体再压 */
+.stock-list.compact .stock-name { font-size: 11px; }
+.stock-list.compact .stock-code { font-size: 9px; }
+.stock-list.compact .stock-price { font-size: 11px; }
+.stock-list.compact .stock-pct { font-size: 10px; }
 
 .num-up { color: var(--up); }
 .num-down { color: var(--down); }
@@ -870,11 +908,8 @@ body.crash::after {
 /* ===== 响应式 ===== */
 /* 窄屏：收紧侧栏 */
 @media (max-width: 1200px) {
-  .layout { grid-template-columns: 240px 1fr 280px; }
-  .stock-card { padding: 8px; }
-  .stock-name { font-size: 13px; }
-  .stock-price, .stock-pct { font-size: 12px; }
-  .asset-stats { gap: 18px; }
+  .layout { grid-template-columns: 200px 1fr 260px; }
+  .asset-stats { gap: 14px; }
 }
 
 /* 平板：双栏 + 底部 */
@@ -883,11 +918,12 @@ body.crash::after {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto;
   }
-  .sidebar, .rightbar { max-height: 220px; }
-  .sidebar { display: flex; flex-direction: column; }
-  .rightbar { display: flex; flex-direction: column; }
-  .sidebar-header { flex-shrink: 0; }
-  .stock-list { flex: 1; }
+  .sidebar { max-height: 120px; display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar.compact-sidebar { max-height: 120px; }
+  .sidebar .sidebar-header { flex-shrink: 0; padding: 4px 8px; }
+  .sidebar .search-input { padding: 3px 8px; font-size: 12px; }
+  .sidebar .stock-list { flex: 1; overflow-y: auto; }
+  .rightbar { max-height: 200px; display: flex; flex-direction: column; }
   /* 股票卡片横向紧凑 */
   .stock-list:not(.compact) {
     display: grid;
