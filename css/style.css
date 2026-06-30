@@ -339,8 +339,8 @@ body {
 }
 
 .stock-spark {
-  margin-top: 4px;
-  height: 24px;
+  margin-top: 3px;
+  height: 14px;
 }
 
 .num-up { color: var(--up); }
@@ -889,14 +889,15 @@ body.crash::after {
   .sidebar-header { flex-shrink: 0; }
   .stock-list { flex: 1; }
   /* 股票卡片横向紧凑 */
-  .stock-list {
+  .stock-list:not(.compact) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 4px;
     padding: 4px;
     overflow-y: auto;
   }
-  .stock-card { margin-bottom: 0; padding: 8px 10px; }
+  .stock-list:not(.compact) .stock-card { margin-bottom: 0; padding: 8px 10px; }
+  .stock-list.compact { display: flex; flex-direction: column; }
   .stock-name { font-size: 13px; }
   .stock-code { font-size: 10px; }
   .stock-price { font-size: 12px; }

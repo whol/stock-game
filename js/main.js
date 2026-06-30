@@ -509,10 +509,16 @@ function bindEvents() {
   document.getElementById('stockSearch').addEventListener('input', handleSearch);
 
   // 股票列表视图切换
-  document.getElementById('toggleViewBtn').addEventListener('click', () => {
-    ui.toggleCompact();
-    ui.renderStockList(currentCode);
-  });
+  const toggleBtn = document.getElementById('toggleViewBtn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const list = document.getElementById('stockList');
+      const isCompact = !list.classList.contains('compact');
+      list.classList.toggle('compact', isCompact);
+      toggleBtn.textContent = isCompact ? '☰' : '≡';
+      ui.renderStockList(currentCode);
+    });
+  }
 
 // 启动
 init();

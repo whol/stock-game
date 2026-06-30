@@ -8,23 +8,16 @@ import { ACHIEVEMENTS, isUnlocked, getProgress } from './achievements.js';
 let stateRef = null;
 let onSelectStockCb = null;
 let prevTotalAssets = null;
-let compactMode = false;
 
 export function setState(s, onSelect) {
   stateRef = s;
   onSelectStockCb = onSelect;
 }
 
-export function toggleCompact() {
-  compactMode = !compactMode;
+export function isCompact() {
   const list = document.getElementById('stockList');
-  list.classList.toggle('compact', compactMode);
-  const btn = document.getElementById('toggleViewBtn');
-  if (btn) btn.textContent = compactMode ? '☰' : '≡';
-  return compactMode;
+  return list && list.classList.contains('compact');
 }
-
-export function isCompact() { return compactMode; }
 
 // ===== 格式化 =====
 export function formatMoney(v) {
@@ -127,6 +120,7 @@ export function renderAssetBar() {
 export function renderStockList(currentCode) {
   const list = document.getElementById('stockList');
   const stocks = getAllStocks();
+  const isCompact = list.classList.contains('compact');
   list.innerHTML = '';
 
   for (const s of stocks) {
@@ -142,22 +136,22 @@ export function renderStockList(currentCode) {
     card.dataset.code = s.code;
 
     // 简易 sparkline（最近 20 日收盘价折线 SVG）
-    const prices = recent.map(b => b.last);
-    const minP = Math.min(...prices), maxP = Math.max(...prices);
-    const range = maxP - minP || 1;
-    const w = 240, h = 24;
-    const pts = prices.map((p, i) => {
-      const x = (i / (prices.length - 1 || 1)) * w;
-      const y = h - ((p - minP) / range) * h;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-    const strokeColor = pct >= 0 ? '#ff4d4f' : '#26a69a';
-
-    const sparkHtml = compactMode ? '' : `
-      <svg class="stock-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%">
+    const sparkHtml = (() => {
+      if (isCompact) return '';
+      const prices = recent.map(b => b.last);
+      const minP = Math.min(...prices), maxP = Math.max(...prices);
+      const range = maxP - minP || 1;
+      const w = 240, h = 14;
+      const pts = prices.map((p, i) => {
+        const x = (i / (prices.length - 1 || 1)) * w;
+        const y = h - ((p - minP) / range) * h;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+      const strokeColor = pct >= 0 ? '#ff4d4f' : '#26a69a';
+      return `<svg class="stock-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%">
         <polyline points="${pts}" fill="none" stroke="${strokeColor}" stroke-width="1.2" />
-      </svg>
-    `;
+      </svg>`;
+    })();
 
     card.innerHTML = `
       <div class="stock-card-row">
