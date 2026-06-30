@@ -968,6 +968,8 @@ function onTouchEnd(e) {
     }
   }, 2000);
 }
+
+function updateToolButtons() {
   document.querySelectorAll('[data-tool]').forEach(b => {
     b.classList.toggle('active', b.dataset.tool === tool);
   });
