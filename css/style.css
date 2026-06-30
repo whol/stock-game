@@ -329,54 +329,60 @@ body {
 }
 
 .chart-header {
-  padding: 10px 14px;
+  padding: 6px 12px;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
+  gap: 8px;
+  min-height: 44px;
+  flex-wrap: wrap;
 }
 
 .chart-title {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+  row-gap: 1px;
 }
 
 .chart-name {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .chart-code {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-mute);
 }
 
 .chart-price {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  margin-left: 8px;
+  margin-left: 4px;
 }
 
 .chart-pct {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 1px 6px;
+  border-radius: 3px;
 }
 
 .chart-actions {
   display: flex;
-  gap: 6px;
+  gap: 5px;
+  flex-shrink: 0;
 }
 
 .chart-wrap {
   flex: 1;
   min-height: 0;
-  padding: 8px 12px;
+  padding: 4px 8px;
   position: relative;
 }
 .chart-wrap.streak-up { filter: drop-shadow(0 0 8px var(--up)); animation: pulse-up 1.2s infinite; }
@@ -387,28 +393,29 @@ body {
 }
 
 .volume-wrap {
-  height: 70px;
-  padding: 0 12px 4px;
+  height: 55px;
+  padding: 0 8px 2px;
   flex-shrink: 0;
 }
 
 .indicator-wrap {
-  height: 100px;
-  padding: 0 12px 4px;
+  height: 85px;
+  padding: 0 8px 2px;
   flex-shrink: 0;
   border-top: 1px solid var(--border);
 }
 .indicator-wrap.hidden { display: none; }
 
-/* ===== 图表工具栏 ===== */
 .chart-toolbar {
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  gap: 18px;
+  gap: 12px;
   align-items: center;
   flex-shrink: 0;
   flex-wrap: wrap;
+  row-gap: 1px;
+  min-height: 36px;
 }
 
 .tool-group {
@@ -826,12 +833,87 @@ body.crash::after {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-mute); }
 
 /* ===== 响应式 ===== */
+/* 窄屏：收紧侧栏 */
+@media (max-width: 1200px) {
+  .layout { grid-template-columns: 240px 1fr 280px; }
+  .stock-card { padding: 8px; }
+  .stock-name { font-size: 13px; }
+  .stock-price, .stock-pct { font-size: 12px; }
+  .asset-stats { gap: 18px; }
+}
+
+/* 平板：双栏 + 底部 */
 @media (max-width: 980px) {
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto;
   }
-  .sidebar, .rightbar { max-height: 240px; }
-  .asset-stats { gap: 12px; flex-wrap: wrap; }
-  .stat { min-width: 70px; }
+  .sidebar, .rightbar { max-height: 220px; }
+  .sidebar { display: flex; flex-direction: column; }
+  .rightbar { display: flex; flex-direction: column; }
+  .sidebar-header { flex-shrink: 0; }
+  .stock-list { flex: 1; }
+  /* 股票卡片横向紧凑 */
+  .stock-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 4px;
+    padding: 4px;
+    overflow-y: auto;
+  }
+  .stock-card { margin-bottom: 0; padding: 8px 10px; }
+  .stock-name { font-size: 13px; }
+  .stock-code { font-size: 10px; }
+  .stock-price { font-size: 12px; }
+  .stock-pct { font-size: 12px; }
+  .stock-spark { height: 20px; margin-top: 3px; }
+  /* 资产栏紧凑 */
+  .asset-stats { gap: 10px; flex-wrap: wrap; }
+  .stat { min-width: 60px; }
+  .stat-value { font-size: 14px; }
+  .stat-label { font-size: 10px; }
+  .date-text { font-size: 14px; }
+  /* 图表工具栏换行 */
+  .chart-toolbar { gap: 10px; }
+  .chart-header { flex-wrap: wrap; gap: 6px; }
+  .chart-actions { flex-wrap: wrap; }
+}
+
+/* 手机 */
+@media (max-width: 600px) {
+  .asset-bar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px;
+    gap: 6px;
+  }
+  .asset-stats {
+    gap: 6px;
+    justify-content: flex-start;
+    font-size: 12px;
+  }
+  .stat { min-width: 50px; }
+  .stat-value { font-size: 13px; }
+  .stat-sub { font-size: 10px; }
+  .date-text { font-size: 13px; }
+  .date-controls { min-width: auto; gap: 4px; }
+  .play-controls { gap: 3px; }
+  .btn { padding: 4px 10px; font-size: 12px; }
+  .btn-icon { width: 28px; height: 28px; font-size: 12px; }
+
+  .layout { padding: 4px; gap: 4px; }
+  .sidebar, .rightbar { max-height: 180px; }
+
+  .stock-list { grid-template-columns: 1fr 1fr; }
+  .stock-card { padding: 6px 8px; }
+  .stock-name { font-size: 12px; }
+  .stock-price, .stock-pct { font-size: 11px; }
+
+  .chart-wrap { padding: 4px 6px; }
+  .chart-toolbar { gap: 6px; padding: 3px 8px; }
+  .tool-btn { padding: 2px 6px; font-size: 11px; }
+
+  .section-title { padding: 8px 10px; font-size: 12px; }
+  .position-card { padding: 6px 8px; font-size: 11px; }
+  .ach-item { padding: 5px 6px; font-size: 11px; }
 }

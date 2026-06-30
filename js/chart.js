@@ -85,6 +85,10 @@ function getViewRange() {
   let count = viewCount > 0 ? viewCount : Math.min(bars.length, Math.floor(plotW / 6));
   count = Math.max(20, Math.min(count, bars.length));
   let start = viewStart;
+  // 默认（用户未操作视图）：始终显示最新 K 线
+  if (start === 0 && viewCount === 0) {
+    start = Math.max(0, bars.length - count);
+  }
   // 确保 start 合法
   if (start < 0) start = 0;
   if (start > bars.length - count) start = bars.length - count;
