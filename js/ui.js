@@ -8,11 +8,23 @@ import { ACHIEVEMENTS, isUnlocked, getProgress } from './achievements.js';
 let stateRef = null;
 let onSelectStockCb = null;
 let prevTotalAssets = null;
+let compactMode = false;
 
 export function setState(s, onSelect) {
   stateRef = s;
   onSelectStockCb = onSelect;
 }
+
+export function toggleCompact() {
+  compactMode = !compactMode;
+  const list = document.getElementById('stockList');
+  list.classList.toggle('compact', compactMode);
+  const btn = document.getElementById('toggleViewBtn');
+  if (btn) btn.textContent = compactMode ? '☰' : '≡';
+  return compactMode;
+}
+
+export function isCompact() { return compactMode; }
 
 // ===== 格式化 =====
 export function formatMoney(v) {
@@ -141,6 +153,12 @@ export function renderStockList(currentCode) {
     }).join(' ');
     const strokeColor = pct >= 0 ? '#ff4d4f' : '#26a69a';
 
+    const sparkHtml = compactMode ? '' : `
+      <svg class="stock-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%">
+        <polyline points="${pts}" fill="none" stroke="${strokeColor}" stroke-width="1.2" />
+      </svg>
+    `;
+
     card.innerHTML = `
       <div class="stock-card-row">
         <div>
@@ -152,9 +170,7 @@ export function renderStockList(currentCode) {
           <div class="stock-pct ${cls}">${sign}${pct.toFixed(2)}%</div>
         </div>
       </div>
-      <svg class="stock-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%">
-        <polyline points="${pts}" fill="none" stroke="${strokeColor}" stroke-width="1.2" />
-      </svg>
+      ${sparkHtml}
     `;
 
     card.addEventListener('click', () => onSelectStockCb && onSelectStockCb(s.code));

@@ -231,7 +231,11 @@ body {
 .sidebar-header {
   padding: 10px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
+.search-input { flex: 1; }
 
 .search-input {
   width: 100%;
@@ -254,6 +258,37 @@ body {
   overflow-y: auto;
   padding: 6px;
 }
+
+/* 紧凑列表模式 */
+.stock-list.compact {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.stock-list.compact .stock-card {
+  padding: 4px 8px;
+  margin-bottom: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+.stock-list.compact .stock-card:hover { transform: none; }
+.stock-list.compact .stock-card.active {
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.08), transparent);
+  box-shadow: none;
+}
+.stock-list.compact .stock-card-row { flex: 1; }
+.stock-list.compact .stock-name { font-size: 12px; }
+.stock-list.compact .stock-code { font-size: 10px; }
+.stock-list.compact .stock-price { font-size: 12px; margin-top: 0; }
+.stock-list.compact .stock-pct { font-size: 11px; }
+.stock-list.compact .stock-spark { display: none; }
 
 .stock-card {
   background: var(--panel-3);

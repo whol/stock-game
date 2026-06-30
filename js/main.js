@@ -507,7 +507,12 @@ function bindEvents() {
 
   // 搜索
   document.getElementById('stockSearch').addEventListener('input', handleSearch);
-}
+
+  // 股票列表视图切换
+  document.getElementById('toggleViewBtn').addEventListener('click', () => {
+    ui.toggleCompact();
+    ui.renderStockList(currentCode);
+  });
 
 // 启动
 init();
