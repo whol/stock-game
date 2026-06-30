@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>股海沉浮 · 历史模拟交易</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 顶部资产栏 -->
+  <header class="asset-bar">
+    <div class="date-controls">
+      <button id="prevDay" class="btn-icon" title="上一天">◀</button>
+      <div class="date-display">
+        <span id="currentDate" class="date-text">—</span>
+        <span id="dayProgress" class="date-sub"></span>
+      </div>
+      <button id="nextDay" class="btn-icon" title="下一天">▶</button>
+    </div>
+
+    <div class="asset-stats">
+      <div class="stat">
+        <span class="stat-label">现金</span>
+        <span id="cash" class="stat-value">¥0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">市值</span>
+        <span id="marketValue" class="stat-value">¥0</span>
+      </div>
+      <div class="stat highlight">
+        <span class="stat-label">总资产</span>
+        <span id="totalAssets" class="stat-value">¥0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">总收益</span>
+        <span id="totalPnl" class="stat-value">¥0</span>
+        <span id="totalPnlPct" class="stat-sub">0.00%</span>
+      </div>
+      <div class="stat title-stat">
+        <span class="stat-label">称号</span>
+        <span id="playerTitle" class="stat-value title-chip">股市新人</span>
+      </div>
+    </div>
+
+    <div class="play-controls">
+      <button id="playPause" class="btn-icon" title="播放/暂停">▶</button>
+      <select id="speed" class="speed-select" title="播放速度">
+        <option value="800">1x</option>
+        <option value="400">2x</option>
+        <option value="200">4x</option>
+        <option value="100">8x</option>
+      </select>
+      <button id="resetGame" class="btn-icon btn-danger" title="重置游戏">↻</button>
+    </div>
+  </header>
+
+  <!-- 主体三栏 -->
+  <main class="layout">
+    <!-- 左：股票列表 -->
+    <aside class="panel sidebar">
+      <div class="sidebar-header">
+        <input id="stockSearch" type="text" class="search-input" placeholder="搜索股票/代码…" />
+      </div>
+      <div id="stockList" class="stock-list"></div>
+    </aside>
+
+    <!-- 中：K线图区 -->
+    <section class="panel chart-section">
+      <div class="chart-header">
+        <div class="chart-title">
+          <span id="chartName" class="chart-name">—</span>
+          <span id="chartCode" class="chart-code"></span>
+          <span id="chartPrice" class="chart-price">—</span>
+          <span id="chartPct" class="chart-pct"></span>
+        </div>
+        <div class="chart-actions">
+          <button id="buyBtn" class="btn btn-buy">买入</button>
+          <button id="sellBtn" class="btn btn-sell">卖出</button>
+          <button id="addStockBtn" class="btn btn-add locked" title="达成『分散投资』解锁">🔒 添加股票</button>
+        </div>
+      </div>
+      <div class="chart-toolbar">
+        <div class="tool-group">
+          <span class="tool-label">指标</span>
+          <button class="tool-btn active" data-indicator="none">无</button>
+          <button class="tool-btn" data-indicator="boll">BOLL</button>
+          <button class="tool-btn" data-indicator="macd">MACD</button>
+          <button class="tool-btn" data-indicator="kdj">KDJ</button>
+        </div>
+        <div class="tool-group">
+          <span class="tool-label">画线</span>
+          <button class="tool-btn active" data-tool="browse">🖱 浏览</button>
+          <button class="tool-btn" data-tool="trendline">↗ 趋势线</button>
+          <button class="tool-btn" data-tool="hline">─ 水平线</button>
+          <button class="tool-btn" data-tool="clear">✕ 清除</button>
+        </div>
+        <div class="tool-group">
+          <span class="tool-label">视图</span>
+          <button class="tool-btn" id="resetViewBtn" title="双击图表也可重置">⤢ 重置</button>
+        </div>
+      </div>
+      <div id="chartWrap" class="chart-wrap">
+        <canvas id="klineChart"></canvas>
+      </div>
+      <div class="volume-wrap">
+        <canvas id="volumeChart"></canvas>
+      </div>
+      <div id="indicatorWrap" class="indicator-wrap hidden">
+        <canvas id="indicatorChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 右：持仓 + 成就 -->
+    <aside class="panel rightbar">
+      <div class="rightbar-section">
+        <h3 class="section-title">持仓</h3>
+        <div id="positionsList" class="positions-list"></div>
+      </div>
+      <div class="rightbar-section">
+        <h3 class="section-title">
+          成就
+          <span id="achProgress" class="ach-progress">0/15</span>
+        </h3>
+        <div id="achievementsList" class="achievements-list"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 交易弹窗 -->
+  <div id="tradeModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="tradeModalTitle">买入</span>
+        <button class="modal-close" data-close>×</button>
+      </div>
+      <div class="modal-body">
+        <div class="trade-stock-info">
+          <span id="tradeStockName">—</span>
+          <span id="tradeStockPrice" class="trade-price">—</span>
+        </div>
+        <div class="trade-row">
+          <label>股数（100 的整数倍）</label>
+          <div class="shares-input">
+            <button id="sharesMinus" class="btn-icon">−</button>
+            <input id="sharesInput" type="number" value="100" step="100" min="100" />
+            <button id="sharesPlus" class="btn-icon">+</button>
+          </div>
+          <div class="quick-shares">
+            <button data-shares="100">100</button>
+            <button data-shares="500">500</button>
+            <button data-shares="1000">1000</button>
+            <button id="maxShares">全仓</button>
+          </div>
+        </div>
+        <div class="trade-row">
+          <label>预估金额</label>
+          <span id="tradeAmount" class="trade-amount">¥0</span>
+        </div>
+        <div class="trade-row">
+          <label>预估手续费</label>
+          <span id="tradeFee" class="trade-fee">¥0</span>
+        </div>
+        <div id="tradeMsg" class="trade-msg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-close>取消</button>
+        <button id="confirmTrade" class="btn btn-buy">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加股票弹窗 -->
+  <div id="addStockModal" class="modal hidden">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <span>添加股票</span>
+        <button class="modal-close" data-close>×</button>
+      </div>
+      <div class="modal-body">
+        <div class="tab-switch">
+          <button class="tab-btn active" data-tab="online">🌐 在线获取</button>
+          <button class="tab-btn" data-tab="paste">📋 粘贴 JSON</button>
+        </div>
+
+        <div id="tabOnline" class="tab-pane active">
+          <p class="tab-hint">输入 A 股代码（如 sh600519、sz000725），游戏直接拉取数据。</p>
+          <div class="form-row">
+            <input id="onlineCode" type="text" placeholder="代码（sh600519）" />
+            <input id="onlineName" type="text" placeholder="名称（可选）" />
+          </div>
+          <button id="fetchOnlineBtn" class="btn btn-buy">获取并导入</button>
+          <div id="onlineMsg" class="trade-msg"></div>
+        </div>
+
+        <div id="tabPaste" class="tab-pane hidden">
+          <p class="tab-hint">
+            在 WorkBuddy 主对话执行：<br>
+            <code>westock-data kline &lt;代码&gt; --start 2024-01-01 --end 2025-06-30 --period day --fq qfq --raw</code><br>
+            把返回的 JSON 粘贴到下方。
+          </p>
+          <div class="form-row">
+            <input id="pasteCode" type="text" placeholder="代码（sh600519）" />
+            <input id="pasteName" type="text" placeholder="名称" />
+          </div>
+          <textarea id="pasteJson" class="paste-textarea" placeholder="粘贴 JSON 数据…"></textarea>
+          <button id="importPasteBtn" class="btn btn-buy">解析导入</button>
+          <div id="pasteMsg" class="trade-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

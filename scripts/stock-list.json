@@ -1,0 +1,7 @@
+[
+  { "code": "sh600519", "name": "贵州茅台", "market": "SH", "sector": "白酒",    "story": "A股股王，高端白酒龙头" },
+  { "code": "sz002594", "name": "比亚迪",   "market": "SZ", "sector": "新能源车","story": "新能源车龙头，出海提速" },
+  { "code": "sz300750", "name": "宁德时代", "market": "SZ", "sector": "电池",    "story": "全球动力电池龙头，波动剧烈" },
+  { "code": "sh601318", "name": "中国平安", "market": "SH", "sector": "保险",    "story": "低估值金融蓝筹，防御型" },
+  { "code": "sh601012", "name": "隆基绿能", "market": "SH", "sector": "光伏",    "story": "光伏超跌，抄底还是接飞刀" }
+]
