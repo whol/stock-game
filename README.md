@@ -45,9 +45,7 @@
 
 已部署到 CloudStudio：
 
-🔗 原地址：[https://f7139bca3117426bac379bf059e88088.app.codebuddy.work/](https://f7139bca3117426bac379bf059e88088.app.codebuddy.work/)
-
-🔗 短链：[https://clck.ru/3UR8vK](https://clck.ru/3UR8vK)
+🔗 [https://de1352c475a549ee9b1b78e6153b5229.app.codebuddy.work/](https://de1352c475a549ee9b1b78e6153b5229.app.codebuddy.work/)
 
 ## 本地运行
 
